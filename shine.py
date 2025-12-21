@@ -1,9 +1,12 @@
+import os
 import pygame as pg
 import sys
 import random
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # --- 定数設定 ---
-WIDTH, HEIGHT = 600, 800
+WIDTH, HEIGHT = 600, 600
 FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -20,7 +23,9 @@ MODE_MILITARY = "MILITARY" # 増殖モード
 CURRENT_MODE = MODE_MILITARY
 
 class Koukaton(pg.sprite.Sprite):
-    """こうかとん（プレイヤー）クラス"""
+    """
+    こうかとん（プレイヤー）クラス
+    """
     def __init__(self, mode):
         super().__init__()
         self.mode = mode
@@ -29,7 +34,7 @@ class Koukaton(pg.sprite.Sprite):
         
         # 画像読み込み試行
         try:
-            img = pg.image.load("fig/3.png")
+            img = pg.image.load("3.png")
             self.image = pg.transform.scale(img, (50, 50))
         except FileNotFoundError:
             pass
@@ -46,7 +51,9 @@ class Koukaton(pg.sprite.Sprite):
             self.count = 1 # こうかとんの数（残機）
 
     def update(self):
-        """左右移動の制御"""
+        """
+        左右移動の制御
+        """
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
             self.rect.x -= self.speed
@@ -60,17 +67,29 @@ class Koukaton(pg.sprite.Sprite):
             self.rect.right = WIDTH
 
     def apply_effect(self, operator, value):
-        """ゲート通過時の効果適用"""
+        """
+        ゲート通過時の効果適用
+        """
         if self.mode == MODE_MILITARY:
             # ミリタリーモード：数の増減
+            #POINT4 こうかとんの表情の画像
             if operator == "+":
                 self.count += value
+                img = pg.image.load("6.png")
+                self.image = pg.transform.scale(img, (50, 50))
+
             elif operator == "x":
                 self.count *= value
+                img = pg.image.load("6.png")
+                self.image = pg.transform.scale(img, (50, 50))
             elif operator == "-":
                 self.count -= value
+                img = pg.image.load("8.png")
+                self.image = pg.transform.scale(img, (50, 50))
             elif operator == "/":
                 self.count //= value
+                img = pg.image.load("8.png")
+                self.image = pg.transform.scale(img, (50, 50))
             
             # 0未満にならないように
             if self.count < 0: self.count = 0
@@ -89,11 +108,15 @@ class Koukaton(pg.sprite.Sprite):
 
 
 class Gate(pg.sprite.Sprite):
-    """通過すると数値が変動するゲートクラス"""
-    def __init__(self, x, y, width, height):
+    """
+    通過すると数値が変動するゲートクラス
+    """
+    def __init__(self, x, y, width, height,pair_id):
         super().__init__()
         self.width = width
         self.height = height
+        self.pair_id = pair_id   # ← POINT1 ゲートID
+
         
         # ランダムな演算と値を生成
         self.operator = random.choice(["+", "x", "-", "+", "x"]) # +とxが出やすいように調整
@@ -133,7 +156,7 @@ class Gate(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         
-        self.speed_y = 5 # 落下速度
+        self.speed_y = 5# 落下速度
 
     def update(self):
         self.rect.y += self.speed_y
@@ -142,7 +165,9 @@ class Gate(pg.sprite.Sprite):
 
 
 class Bullet(pg.sprite.Sprite):
-    """アローモード用の弾"""
+    """
+    アローモード用の弾
+    """
     def __init__(self, x, y):
         super().__init__()
         self.image = pg.Surface((10, 20))
@@ -188,20 +213,27 @@ def main():
                 pg.quit()
                 sys.exit()
             
-            # ゲート生成
+            # ゲート生成  
             if event.type == GATE_SPAWN_EVENT:
                 # 画面を2分割して左右にゲートを出すかランダムに決定
                 gate_width = WIDTH // 2 - 10
                 
+    
+                #ゲートにIDを追加する
+                pair_id = random.randint(0, 999999)  # ペアIDを生成
+
                 # 左側のゲート
-                gate_l = Gate(5, -100, gate_width, 80)
+                gate_l = Gate(5, -100, gate_width, 80, pair_id)
                 gates.add(gate_l)
                 all_sprites.add(gate_l)
 
                 # 右側のゲート
-                gate_r = Gate(WIDTH // 2 + 5, -100, gate_width, 80)
+                gate_r = Gate(WIDTH // 2 + 5, -100, gate_width, 80, pair_id)
                 gates.add(gate_r)
                 all_sprites.add(gate_r)
+                
+              
+
 
         # 2. 更新処理
         all_sprites.update()
@@ -216,11 +248,33 @@ def main():
                 bullets.add(bullet)
                 all_sprites.add(bullet)
 
-        # 衝突判定：プレイヤー vs ゲート
+        #追加機能　1 and　2
+        # 衝突判定：プレイヤーとゲート
         # 衝突したら効果を適用してゲートを消す
-        hits = pg.sprite.spritecollide(player, gates, True) 
-        for gate in hits:
-            player.apply_effect(gate.operator, gate.value)
+
+        hits = pg.sprite.spritecollide(player, gates, False)  # TrueをFalseにして消さないで判定
+
+        if hits:
+            # 両方同時に当たった場合は左を優先
+            if len(hits) == 1:
+        # 片方だけに当たった場合 → そのゲートだけ適用
+                chosen_gate = hits[0]
+            else:
+        # 両方同時に当たった場合 → 左側を優先
+                chosen_gate = min(hits, key=lambda g: g.rect.x)
+
+
+
+        # 効果を適用
+            player.apply_effect(chosen_gate.operator, chosen_gate.value)
+
+        # 選んだゲートだけ消す
+            chosen_gate.kill()
+
+        # 他のゲートは消す（効果は適用しない）
+            for g in gates:
+                if g.pair_id == chosen_gate.pair_id and g != chosen_gate:
+                    g.kill()
 
         # 3. 描画処理
         screen.fill(BLACK)
