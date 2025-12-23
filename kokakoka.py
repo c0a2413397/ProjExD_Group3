@@ -322,7 +322,7 @@ def stage2(screen):
                         (WIDTH // 2 - 80, HEIGHT // 2))
             pg.display.update()
             pg.time.wait(3000)
-            return
+            return  #ここに広告入れるといい
 
         pg.display.update()
 
