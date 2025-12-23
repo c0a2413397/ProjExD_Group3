@@ -9,7 +9,7 @@
 2つ目はランダムな数字の枠を通過することでこうかとんが増加させ、ステージBOSSと対戦するゲーム。
 * 参考URL：[ホーム画面]　pygameで始めるpythonプログラム1(画面を出してみる編)
 https://note.com/mjay/n/nf53d9beea2b5 最終閲覧日（2025年12月23日）
-* [ホーム画面の修正] Gemini https://gemini.google.com 
+* [ホーム画面の修正・画像生成] Gemini https://gemini.google.com 
 最終利用日(2025年12月22日)
 * [ミリタリーモード] Copilot https://copilot.microsoft.com 最終利用日（2025年12月23日
 
