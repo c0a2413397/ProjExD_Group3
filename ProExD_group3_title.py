@@ -59,6 +59,9 @@ def main():
     # ステージ文字
     stage1_text = stage_font.render("ミリタリーモード", True, WHITE)
     stage2_text = stage_font.render("アローモード", True, WHITE)
+    # ステージ文字
+    stage1_text = stage_font.render("ラストコカー", True, WHITE)
+    stage2_text = stage_font.render("コカー・コカー", True, WHITE)
     stage1_text_rect = stage1_text.get_rect(center=stage1_rect.center)
     stage2_text_rect = stage2_text.get_rect(center=stage2_rect.center)
 
@@ -92,6 +95,7 @@ def main():
         screen.blit(stage2_text, stage2_text_rect)
 
         pg.display.update()
+
 
 if __name__ == "__main__":
     pg.init()
