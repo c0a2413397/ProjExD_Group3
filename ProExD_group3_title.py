@@ -71,7 +71,7 @@ def main():
             if event.type == pg.QUIT:
                 running = False
 
-            # クリック処理（中身は後で追加）
+            # クリック処理
             if event.type == pg.MOUSEBUTTONDOWN:
                 if stage1_rect.collidepoint(event.pos):
                     pg.mixer.music.stop()  #ゲーム開始前にBGMを止める
